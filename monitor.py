@@ -7,7 +7,7 @@ import wave
 import time
 import os
 
-Threshold = 120
+Threshold = 100
 
 SHORT_NORMALIZE = 1.0 / 32768.0
 
@@ -49,8 +49,8 @@ class Recorder:
             channels=CHANNELS,
             rate=RATE,
             input=True,
+            output=False, # No need for output 
             # input_device_index=1, # Set only if required
-            output=True,
             frames_per_buffer=chunk,
         )
 
@@ -91,12 +91,12 @@ class Recorder:
         print(f"Written to file: {filename}")
         print("Resuming monitoring")
 
-    def log(self, start_time: datetime.datetime):
+    def log(self, start_time: datetime.datetime, rms_val: float):
         filename = os.path.join(OUTPUT, f"log.csv")
         with open(filename, mode="a", newline="") as csv_file:
             csv_writer = csv.writer(csv_file)
             csv_writer.writerow(
-                [start_time.strftime("%Y-%m-%d"), start_time.strftime("%H:%M:%S")]
+                [start_time.strftime("%Y-%m-%d"), start_time.strftime("%H:%M:%S"), rms_val]
             )
 
     def listen(self):
@@ -106,9 +106,9 @@ class Recorder:
             rms_val = self.rms(input)
             if rms_val > Threshold:
                 start_time = datetime.datetime.now()
-                print("Exceeded threshold")
+                print(f"Exceeded threshold with RMS {rms_val}")
                 self.record(start_time)
-                self.log(start_time)
+                self.log(start_time, rms_val)
 
 
 a = Recorder()
