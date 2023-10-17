@@ -102,14 +102,17 @@ class Recorder:
     def listen(self):
         print("Beginning monitoring")
         while True:
-            input = self.stream.read(chunk)
-            rms_val = self.rms(input)
-            if rms_val > Threshold:
-                start_time = datetime.datetime.now()
-                print(f"Exceeded threshold with RMS {rms_val}")
-                self.record(start_time)
-                self.log(start_time, rms_val)
-
+            try:
+                input = self.stream.read(chunk)
+                rms_val = self.rms(input)
+                if rms_val > Threshold:
+                    start_time = datetime.datetime.now()
+                    print(f"Exceeded threshold with RMS {rms_val}")
+                    self.record(start_time)
+                    self.log(start_time, rms_val)
+            except Exception as e:
+                print(e)
+                pass
 
 a = Recorder()
 a.listen()
